@@ -1,8 +1,9 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 let
   rcloneRemote = "gdrive";
   rcloneMount = "${config.home.homeDirectory}/gdrive";
   techLabScript = "${config.home.homeDirectory}/TechLabLocal/watcher.sh";
+  hermesHome = "${config.home.homeDirectory}/hermes";
 in
 {
   home.stateVersion = "26.05";
@@ -14,6 +15,11 @@ in
 
   home.username = "pocket";
   home.homeDirectory = "/home/pocket";
+  home.sessionVariables = {
+    EDITOR = "vim";
+    RCLONE_CONFIG = "${config.home.homeDirectory}/.config/rclone/mutable-rclone.conf";
+  };
+
   programs.home-manager.enable = true;
 
   programs.vim = {
@@ -112,9 +118,9 @@ in
         hard_delete = true;
       };
       secrets = {
-        client_id = "10--REDACTED--mp.apps.googleusercontent.com";
-        client_secret = "GOC--REDACTED--d2L";
-        token = "{}";
+        client_id = "${config.home.homeDirectory}/secrets/rclone-gdrive-clientid";
+        client_secret = "${config.home.homeDirectory}/secrets/rclone-gdrive-clientsecret";
+        token = "${config.home.homeDirectory}/secrets/rclone-gdrive-token";
       };
       mounts."" = {
         enable = true;
@@ -127,6 +133,18 @@ in
     };
   };
 
+  # pi
+  #programs.pi.coding-agent = {
+    #enable = true;
+    # rules = ''Be concise.'';
+    # skills = [ ./skills/my-skill ];
+    # models = ./models.json;
+    #settings.model = "gpt-4o";
+    #environment.PI_CODING_AGENT_DIR.value = "${config.home.homeDirectory}/.pi/agent";
+    #environment.OPENAI_API_KEY.file = "${config.home.homeDirectory}/secrets/openai-apikey";
+  #};
+
+  # systemd
   systemd.user.services.rclone-mount = {
     Unit = {
       Description = "Rclone mount for ${rcloneRemote}";
@@ -160,7 +178,7 @@ in
     };
     Service = {
       Type = "simple";
-      ExecStart = "${pkgs.writeShellScript "run-external" (builtins.readFile "${techLabScript}") }";
+      ExecStart = "${pkgs.writeShellScript "watcher.sh" (builtins.readFile "${techLabScript}") }";
       User = "${config.home.username}";
       WorkingDirectory = "${builtins.dirOf "${techLabScript}"}";
       Restart = "always";

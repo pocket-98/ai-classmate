@@ -1,14 +1,6 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
-  # sudo nix-channel --add https://github.com/nix-community/home-manager/archive/release-26.05.tar.gz home-manager
-  # sudo nix-channel --add https://github.com/Mic92/sops-nix/archive/release-26.05.tar.gz sops-nix
-  imports = [
-    ./hardware-configuration.nix
-    <home-manager/nixos>
-    #<sops-nix/modules/sops>
-  ];
-
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
@@ -51,17 +43,18 @@
     #jack.enable = true;
   };
 
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
   users.users."pocket" = {
     isNormalUser = true;
     description = "pocket";
     extraGroups = [ "networkmanager" "wheel" ];
   };
-  home-manager.useGlobalPkgs = true;
-  home-manager.useUserPackages = true;
-  home-manager.users."pocket" = import ./home.nix;
 
-  programs.firefox.enable = true;
-  nixpkgs.config.allowUnfree = true;
+  #home-manager.useGlobalPkgs = true;
+  #home-manager.useUserPackages = true;
+  #home-manager.users."pocket" = import ./home.nix;
+
 
   environment.systemPackages = with pkgs; [
     vim
@@ -74,12 +67,20 @@
     home-manager
     gnupg
     pinentry-tty
+    inputs.llm-agents.packages.x86_64-linux.hermes-agent
   ];
 
   #sops.defaultSopsFile = "/etc/nixos/secrets.yaml";
   #sops.gnupg.home = "/home/pocket/.gnupg";
 
   # programs.mtr.enable = true;
+
+  programs.firefox.enable = true;
+
+  programs.bash = {
+    enable = true;
+    completion.enable = true;
+  };
 
   # gpg
   programs.gnupg.agent = {
@@ -102,6 +103,14 @@
       bind l select-pane -R
     '';
   };
+
+  # hermes
+  #programs.hermes-agent = {
+  #  enable = true;
+  #  settings.model.default = "openai/gpt-4o";
+  #  environmentFiles = [ "/home/pocket/secrets/hermes-env" ];
+  #  addToSystemPackages = true;
+  #};
 
   networking.firewall.allowedTCPPorts = [ 22 ];
   networking.firewall.allowedUDPPorts = [ ];
