@@ -140,10 +140,43 @@ in
     enable = true;
     #rules = ''Be concise.'';
     #skills = [ ./skills/my-skill ];
-    #models = ./models.json;
-    settings.model = "gpt-4o";
-    #environment.PI_CODING_AGENT_DIR.value = "${config.home.homeDirectory}/.pi/agent";
-    #environment.OPENAI_API_KEY.file = "${config.home.homeDirectory}/secrets/openai-apikey";
+    settings = {
+      defaultProvider = "google";
+      #defaultModel = "gemini-3.5-flash";
+      defaultModel = "gemma-4-31b-it";
+      defaultThinkingLevel = "medium";
+    };
+    context = ''
+      # AGENTS.md
+      You are a graduate student writing code to help do complex tasks.
+    '';
+    models.providers = {
+      "custom" = {
+        baseUrl = "https://generativelanguage.googleapis.com/v1beta";
+        api = "google-generative-ai";
+        apiKey = "${builtins.readFile "${config.home.homeDirectory}/secrets/gemini-apikey"}";
+        models = [
+          {
+            id = "gemma-4-31b-it";
+            name = "Gemma 4 31B";
+            contextWindow = 262144;
+            maxOutputTokens = 32768;
+            reasoning =  true;
+            input =  [ "text" "image" ];
+            stream = true;
+          }
+          {
+            id = "gemini-3.5-flash";
+            name = "Gemini 3.5 Flash";
+            contextWindow = 1048576;
+            maxOutputTokens = 65536;
+            reasoning =  true;
+            input =  [ "text" "image" ];
+            stream = true;
+          }
+        ];
+      };
+    };
   };
 
   # systemd
