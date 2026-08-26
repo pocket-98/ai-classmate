@@ -45,28 +45,47 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  services.logind.settings.Login = {
+    HandleLidSwitch = "ignore";
+    HandleLidSwitchExternalPower = "ignore";
+    HandleLidSwitchDocked = "ignore";
+  };
+
   users.users."pocket" = {
     isNormalUser = true;
     description = "pocket";
     extraGroups = [ "networkmanager" "wheel" ];
   };
 
-  #home-manager.useGlobalPkgs = true;
-  #home-manager.useUserPackages = true;
-  #home-manager.users."pocket" = import ./home.nix;
-
-
   environment.systemPackages = with pkgs; [
-    vim
     gnumake
+    lsb-release
+    dbus
     htop
     tmux
+    vim
     git
-    python3
+    wget
+    at
+    zip
+    unzip
+    python314
+    python314Packages.setuptools
     nodejs_26
-    home-manager
+    yarn
+    pm2
     gnupg
     pinentry-tty
+    home-manager
+    lame
+    fdk-aac-encoder
+    flac
+    vorbis-tools
+    opus-tools
+    postgresql
+    redis
+    inkscape
+    ffmpeg
     inputs.llm-agents.packages.x86_64-linux.hermes-agent
   ];
 
