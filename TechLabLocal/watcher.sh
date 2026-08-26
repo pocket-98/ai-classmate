@@ -64,15 +64,20 @@ load_old_list() {
 }
 
 get_gdrive_times() {
-    OLDIFS="$IFS"
-    IFS=$'\n'
-    flist=( $(find "$gdrive" -type f) )
-    ftimes=( )
-    for j in ${!flist[@]}; do
-        t=$( stat -c "%X" "${flist[$j]}")
-        ftimes+=( "$t" )
-    done
-    IFS="$OLDIFS"
+    if [ -d "$gdrive" ]; then
+        OLDIFS="$IFS"
+        IFS=$'\n'
+        flist=( $(find "$gdrive" -type f) )
+        ftimes=( )
+        for j in ${!flist[@]}; do
+            t=$( stat -c "%X" "${flist[$j]}")
+            ftimes+=( "$t" )
+        done
+        IFS="$OLDIFS"
+    else
+        flist=( ${old_list[@]} )
+        ftimes=( ${old_times[@]} )
+    fi
 }
 
 find_old_idx() {

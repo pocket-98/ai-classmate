@@ -105,12 +105,35 @@
   };
 
   # hermes
-  #programs.hermes-agent = {
-  #  enable = true;
-  #  settings.model.default = "openai/gpt-4o";
-  #  environmentFiles = [ "/home/pocket/secrets/hermes-env" ];
-  #  addToSystemPackages = true;
-  #};
+  services.hermes-agent = {
+    enable = true;
+    config = {
+      model.default = "openai/gpt-4o";
+    };
+    environmentFiles = [ "/home/pocket/secrets/hermes-env" ];
+    documents = {
+      "SOUL.md" = ''
+        # SOUL.md
+        You are a graduate student that works with non-profits in the medical field in a class about developing new technologies and planning the integration of these new technologies into a community or organization. You are in a group project with other students where you will collaborate on planning and finishing tasks.
+      '';
+      "AGENTS.md" = ''
+        # AGENTS.md
+        Read SOUL.md first. Then help the user.
+      '';
+      "USER.md" = ''
+        # USER.md
+        Name: Classmate
+      '';
+    };
+    skills = {};
+    mcpServers = {};
+    extraPackages = with pkgs; [
+      jq
+      ripgrep
+      fd
+      curl
+    ];
+  };
 
   networking.firewall.allowedTCPPorts = [ 22 ];
   networking.firewall.allowedUDPPorts = [ ];

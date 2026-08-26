@@ -6,8 +6,9 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     llm-agents.url = "github:numtide/llm-agents.nix";
     llm-agents.inputs.nixpkgs.follows = "nixpkgs";
+    nix-hermes.url = "github:0xrsydn/nix-hermes-agent";
   };
-  outputs = { self, nixpkgs, home-manager, llm-agents, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, llm-agents, nix-hermes, ... }@inputs: {
     nixosConfigurations."ai-classmate" = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };
@@ -15,6 +16,7 @@
         ./hardware-configuration.nix
         ./configuration.nix
         home-manager.nixosModules.home-manager
+        nix-hermes.nixosModules.hermes-agent
         {
           nixpkgs.config.allowUnfree = true;
           home-manager.useGlobalPkgs = true;
