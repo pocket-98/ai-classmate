@@ -22,6 +22,8 @@ in
 
   programs.home-manager.enable = true;
 
+  home.file.".vim/tmp/.keep".text = "";
+
   programs.vim = {
     enable = true;
     plugins = with pkgs.vimPlugins; [
