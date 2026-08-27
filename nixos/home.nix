@@ -81,11 +81,14 @@ in
   };
 
   # ssh
-  home.file.".ssh/keys/git".source = "${config.home.homeDirectory}/secrets/ssh-git";
-  home.file.".ssh/keys/git.pub".source = "${config.home.homeDirectory}/secrets/ssh-git.pub";
-  home.file.".ssh/keys/ai-classmate".source = "${config.home.homeDirectory}/secrets/ssh-aiclassmate";
-  home.file.".ssh/keys/ai-classmate.pub".source = "${config.home.homeDirectory}/secrets/ssh-aiclassmate.pub";
-  home.file.".ssh/authorized_keys".text = lib.concatStrings [
+  systemd.user.tmpfiles.rules = [
+    "L+ %h/.ssh/keys/git - - - - %h/secrets/ssh-git"
+    "L+ %h/.ssh/keys/git.pub - - - - %h/secrets/ssh-git.pub"
+    "L+ %h/.ssh/keys/ai-classmate - - - - %h/secrets/ssh-aiclassmate"
+    "L+ %h/.ssh/keys/ai-classmate.pub - - - - %h/secrets/ssh-aiclassmate.pub"
+    "C %h/.ssh/authorized_keys - - - - %h/.ssh/authorized_keys.gen"
+  ];
+  home.file.".ssh/authorized_keys.gen".text = lib.concatStrings [
     (builtins.readFile "${config.home.homeDirectory}/secrets/ssh-aiclassmate.pub")
     "\n"
   ];
@@ -233,7 +236,7 @@ in
     };
     Service = {
       Type = "simple";
-      ExecStart = "${pkgs.writeShellScript "watcher.sh" (builtins.readFile "${techLabScript}") }";
+      ExecStart = "${techLabScript}";
       User = "${config.home.username}";
       WorkingDirectory = "${builtins.dirOf "${techLabScript}"}";
       Restart = "always";
