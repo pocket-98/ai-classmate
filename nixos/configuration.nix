@@ -43,6 +43,10 @@
     #jack.enable = true;
   };
 
+  systemd.tmpfiles.rules = [
+    "d /mnt 0777 root root -"
+  ];
+
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   services.logind.settings.Login = {

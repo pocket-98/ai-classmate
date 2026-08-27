@@ -1,7 +1,7 @@
 #!/usr/bin/env nix-shell
 #!nix-shell -i bash -p bash pandoc
 
-gdrive="${HOME}/gdrive/Tech Social Impact Lab - Nasal Cannulas"
+gdrive="/mnt/gdrive/Tech Social Impact Lab - Nasal Cannulas"
 old_file="file_timestamps.csv"
 sleep_loop_time=10
 
@@ -16,10 +16,6 @@ compile_file() {
     outp=$(get_output_file "$f" | head -n 1)
     compile_script=$(get_output_file "$f" | tail -n 1)
     echo "  $inp -> ($compile_script) -> $outp"
-    dirnam=$(dirname "$outp")
-    if [ ! -d "$dirnam" ]; then
-        mkdir -p "$dirnam"
-    fi
     $compile_script "$f" "$outp"
 }
 
@@ -68,20 +64,20 @@ load_old_list() {
 }
 
 get_gdrive_times() {
-    OLDIFS="$IFS"
-    IFS=$'\n'
     if [ -d "$gdrive" ]; then
+        OLDIFS="$IFS"
+        IFS=$'\n'
         flist=( $(find "$gdrive" -type f) )
         ftimes=( )
         for j in ${!flist[@]}; do
             t=$( stat -c "%X" "${flist[$j]}")
             ftimes+=( "$t" )
         done
+        IFS="$OLDIFS"
     else
-        flist=( "${old_list[@]}" )
-        ftimes=( "${old_times[@]}" )
+        flist=( ${old_list[@]} )
+        ftimes=( ${old_times[@]} )
     fi
-    IFS="$OLDIFS"
 }
 
 find_old_idx() {

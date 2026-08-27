@@ -1,7 +1,7 @@
 { config, pkgs, inputs, ... }:
 let
   rcloneRemote = "gdrive";
-  rcloneMount = "${config.home.homeDirectory}/gdrive";
+  rcloneMount = "/mnt/gdrive";
   techLabScript = "${config.home.homeDirectory}/TechLabLocal/watcher.sh";
   hermesHome = "${config.home.homeDirectory}/hermes";
 in
