@@ -114,6 +114,11 @@
 
   services.openssh.enable = true;
 
+  services.tailscale = {
+    enable = true;
+    authKeyFile = "/home/pocket/secrets/tailscale-authkey";
+  };
+
   programs.tmux = {
     enable = true;
     clock24 = true;
@@ -158,8 +163,12 @@
     ];
   };
 
-  networking.firewall.allowedTCPPorts = [ 22 ];
-  networking.firewall.allowedUDPPorts = [ ];
+  networking.firewall.allowedTCPPorts = [
+    22
+  ];
+  networking.firewall.allowedUDPPorts = [
+    config.services.tailscale.port
+  ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
