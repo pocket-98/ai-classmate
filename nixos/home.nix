@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, ... }:
+{ lib, config, pkgs, inputs, ... }:
 let
   rcloneRemote = "gdrive";
   rcloneMount = "/mnt/gdrive";
@@ -81,6 +81,14 @@ in
   };
 
   # ssh
+  home.file.".ssh/keys/git".source = "${config.home.homeDirectory}/secrets/ssh-git";
+  home.file.".ssh/keys/git.pub".source = "${config.home.homeDirectory}/secrets/ssh-git.pub";
+  home.file.".ssh/keys/ai-classmate".source = "${config.home.homeDirectory}/secrets/ssh-aiclassmate";
+  home.file.".ssh/keys/ai-classmate.pub".source = "${config.home.homeDirectory}/secrets/ssh-aiclassmate.pub";
+  home.file.".ssh/authorized_keys".text = lib.concatStrings [
+    (builtins.readFile "${config.home.homeDirectory}/secrets/ssh-aiclassmate.pub")
+    "\n"
+  ];
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
@@ -93,6 +101,18 @@ in
         hostname = "ssh.sausage.house";
         port = 22;
         user = "pavan";
+        identityFile = "~/.ssh/keys/ai-classmate";
+      };
+      "kelley-ai-classmate k*" = {
+        hostname = "100.69.251.16";
+        port = 22;
+        user = "pocket";
+        identityFile = "~/.ssh/keys/ai-classmate";
+      };
+      "sausalito-ai-classmate sa*" = {
+        hostname = "100.83.187.72";
+        port = 22;
+        user = "pocket";
         identityFile = "~/.ssh/keys/ai-classmate";
       };
     };
