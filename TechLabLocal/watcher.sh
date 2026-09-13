@@ -1,20 +1,20 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p bash pandoc
+#!nix-shell -i bash shell.nix
 
 gdrive="/mnt/gdrive/Tech Social Impact Lab - Nasal Cannulas"
 old_file="file_timestamps.csv"
 sleep_loop_time=10
 
-in_exts=(  ".docx" )
-out_exts=( ".md" )
-compile_scripts=( "_compile_docx" )
+in_exts=(  ".docx" ".pptx" )
+out_exts=( ".md"   ".md" )
+compile_scripts=( "_compile_docx" "_compile_pptx" )
 
 
 compile_file() {
     f="$1"
     inp=$(strip_gdrive "$f")
-    outp=$(get_output_file "$f" | head -n 1)
-    compile_script=$(get_output_file "$f" | tail -n 1)
+    outp=$(get_output_file "$f" 1)
+    compile_script=$(get_output_file "$f" 2)
     echo "  $inp -> ($compile_script) -> $outp"
     dirnam=$(dirname "$outp")
     if [ ! -d "$dirnam" ]; then
@@ -24,7 +24,21 @@ compile_file() {
 }
 
 _compile_docx() {
-    pandoc "$1" -o "$2"
+    tmp=$(mktemp -t file.XXXXX.docx)
+    cp "$1" "$tmp"
+    pandoc "$tmp" -o "$2"
+    stat=$?
+    rm "$tmp"
+    return $stat
+}
+
+_compile_pptx() {
+    tmp=$(mktemp -t file.XXXXX.pptx)
+    cp "$1" "$tmp"
+    pptx2md "$tmp" -o "$2"
+    stat=$?
+    rm "$tmp"
+    return $stat
 }
 
 _copy() {
@@ -33,6 +47,7 @@ _copy() {
 
 get_output_file() {
     f="$1"
+    varnum="$2"
     inp=$(strip_gdrive "$f")
     inext=".${inp##*.}"
     idx=-1
@@ -51,8 +66,11 @@ get_output_file() {
         compscr="${compile_scripts[$idx]}"
     fi
     outp="${inp%.*}$ext"
-    echo "$outp"
-    echo "$compscr"
+    if [ "$varnum" -eq 2 ]; then
+        echo "$compscr"
+    else
+        echo "$outp"
+    fi
 }
 
 strip_gdrive() {
@@ -62,8 +80,8 @@ strip_gdrive() {
 load_old_list() {
     OLDIFS="$IFS"
     IFS=$'\n'
-    old_list=( $(cat "${old_file}" | awk -F"," '{print $1}') )
-    old_times=( $(cat "${old_file}" | awk -F"," '{print $2}') )
+    old_list=( $(cat "${old_file}" | awk -F"^" '{print $1}') )
+    old_times=( $(cat "${old_file}" | awk -F"^" '{print $2}') )
     IFS="$OLDIFS"
 }
 
@@ -115,7 +133,7 @@ compare_file_times() {
             if [ "$t" -gt "$ot" ]; then
                 compile_list+=( "$j" )
             fi
-            outp=$(get_output_file "$f" | head -n 1)
+            outp=$(get_output_file "$f" 1)
             if [ ! -f "${outp}" ]; then
                 compile_list+=( "$j" )
             fi
@@ -148,11 +166,11 @@ store_old_list() {
             fi
         done
         if [ "$found" -eq 0 ]; then
-            echo "${flist[$j]},${ftimes[$j]}" >> "${old_file}"
+            echo "${flist[$j]}^${ftimes[$j]}" >> "${old_file}"
         fi
     done
     for k in ${remove_list[@]}; do
-        echo "${old_list[$k]},${old_times[$k]}" >> "${old_file}"
+        echo "${old_list[$k]}^${old_times[$k]}" >> "${old_file}"
     done
 }
 
@@ -172,7 +190,8 @@ remove_files() {
     for k_idx in ${!remove_list[@]}; do
         k=${remove_list[$k_idx]}
         f="${old_list[$k]}"
-        outp=$(get_output_file "$f" | head -n 1)
+        outp=$(get_output_file "$f" 1)
+        echo "  rm remove_list[$k] ($f)"
         echo "  rm $outp"
         rm "$outp"
         if [ $? -eq 0 ]; then
