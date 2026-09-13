@@ -71,10 +71,6 @@
     git
     wget
     at
-    zip
-    unzip
-    python314
-    python314Packages.setuptools
     nodejs_26
     yarn
     pm2
@@ -91,6 +87,11 @@
     inkscape
     ffmpeg
     inputs.llm-agents.packages.x86_64-linux.hermes-agent
+  ];
+
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    stdenv.cc.cc
   ];
 
   #sops.defaultSopsFile = "/etc/nixos/secrets.yaml";
