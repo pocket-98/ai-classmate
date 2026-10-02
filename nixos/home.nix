@@ -174,7 +174,23 @@ in
       You are a graduate student writing code to help do complex tasks.
     '';
     models.providers = {
-      "custom" = {
+      "customopenrouter" = {
+        baseUrl = "https://openrouter.ai/api/v1";
+        api = "openai-completions";
+        apiKey = "${builtins.readFile "${config.home.homeDirectory}/secrets/openrouter-apikey"}";
+        models = [
+          {
+            id = "qwen/qwen3.8-27b:free";
+            name = "Qwen 3.8 27B";
+            contextWindow = 262144;
+            maxOutputTokens = 131072;
+            reasoning =  true;
+            input =  [ "text" "image" ];
+            stream = true;
+          }
+        ];
+      };
+      "customgoogle" = {
         baseUrl = "https://generativelanguage.googleapis.com/v1beta";
         api = "google-generative-ai";
         apiKey = "${builtins.readFile "${config.home.homeDirectory}/secrets/gemini-apikey"}";

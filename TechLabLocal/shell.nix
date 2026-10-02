@@ -12,6 +12,7 @@ pkgs.mkShell {
     (python3.withPackages (ps: with ps; [
       ps.setuptools
       ps.virtualenv
+      ps.pandas
     ]))
   ];
 
@@ -53,6 +54,12 @@ pkgs.mkShell {
     # 4. Run pip install automatically
     echo "Installing dependencies for pptx2md ..."
     pip install --no-binary :all: pptx2md || pip install pptx2md
+
+    echo "Installing dependencies for xlsx2csv ..."
+    pip install --no-binary :all: xlsx2csv || pip install xlsx2csv
+
+    echo "Installing dependencies for pandas ..."
+    pip install --no-binary :all: pandas openpyxl jinja2 || pip install pandas openpyxl jinja2
   '';
 }
 

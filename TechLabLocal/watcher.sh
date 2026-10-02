@@ -5,9 +5,9 @@ gdrive="/mnt/gdrive/Tech Social Impact Lab - Nasal Cannulas"
 old_file="file_timestamps.csv"
 sleep_loop_time=10
 
-in_exts=(  ".docx" ".pptx" )
-out_exts=( ".md"   ".md" )
-compile_scripts=( "_compile_docx" "_compile_pptx" )
+in_exts=(  ".docx" ".pptx" ".xlsx" )
+out_exts=( ".md"   ".md"   ".csv" )
+compile_scripts=( "_compile_docx" "_compile_pptx" "_compile_xlsx" )
 
 
 compile_file() {
@@ -36,6 +36,16 @@ _compile_pptx() {
     tmp=$(mktemp -t file.XXXXX.pptx)
     cp "$1" "$tmp"
     pptx2md "$tmp" -o "$2"
+    stat=$?
+    rm "$tmp"
+    return $stat
+}
+
+_compile_xlsx() {
+    tmp=$(mktemp -t file.XXXXX.xlsx)
+    cp "$1" "$tmp"
+    #xlsx2csv "$tmp" | pandoc -f csv -t markdown -o "$2"
+    xlsx2csv "$tmp" > "$2"
     stat=$?
     rm "$tmp"
     return $stat
