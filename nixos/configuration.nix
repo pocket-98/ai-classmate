@@ -73,6 +73,8 @@
     at
     nodejs_26
     yarn
+    whois
+    dig
     pm2
     gnupg
     pinentry-tty
@@ -137,7 +139,7 @@
   services.hermes-agent = {
     enable = true;
     config = {
-      model.default = "openai/gpt-4o";
+      model.default = "nvidia/nemotron-3.5-lightning:free";
     };
     environmentFiles = [ "/home/pocket/secrets/hermes-env" ];
     documents = {
